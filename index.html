@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你的朋友是人类吗？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 500px;
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeSlideIn 0.5s ease;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .start-page .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .start-page h1 {
+            color: #4a3f8a;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .start-page .subtitle {
+            color: #8b82b8;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .btn-start {
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn-start:hover {
+            opacity: 0.9;
+        }
+
+        .btn-start:active {
+            transform: scale(0.97);
+        }
+
+        .quiz-page {
+            width: 100%;
+        }
+
+        .progress-area {
+            width: 100%;
+            margin-bottom: 28px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #ede9fe;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .progress-text {
+            text-align: right;
+            color: #a9a3cc;
+            font-size: 13px;
+        }
+
+        .question-text {
+            color: #3a3568;
+            font-size: 19px;
+            text-align: center;
+            line-height: 1.7;
+            margin-bottom: 36px;
+            min-height: 64px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn-answer {
+            padding: 14px 36px;
+            border: 2px solid #ddd;
+            border-radius: 14px;
+            font-size: 17px;
+            cursor: pointer;
+            background: #fff;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+
+        .btn-answer:hover {
+            border-color: #667eea;
+            background: #f5f3ff;
+        }
+
+        .btn-answer:active {
+            transform: scale(0.97);
+        }
+
+        .btn-answer.selected-yes {
+            border-color: #667eea;
+            background: #667eea;
+            color: #fff;
+        }
+
+        .btn-answer.selected-no {
+            border-color: #e07a5f;
+            background: #e07a5f;
+            color: #fff;
+        }
+
+        .result-page .emoji {
+            font-size: 72px;
+            margin-bottom: 16px;
+        }
+
+        .result-page .conclusion {
+            color: #3a3568;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .result-page .score-area {
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        .score-text {
+            text-align: center;
+            color: #6b63a0;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .score-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: #ede9fe;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .score-bar-fill.robot {
+            background: linear-gradient(90deg, #e07a5f, #f2a65a);
+        }
+
+        .score-bar-fill.half {
+            background: linear-gradient(90deg, #f2a65a, #81b29a);
+        }
+
+        .score-bar-fill.human {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .btn-restart {
+            padding: 12px 40px;
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 14px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-restart:hover {
+            background: #667eea;
+            color: #fff;
+        }
+
+        .btn-restart:active {
+            transform: scale(0.97);
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page start-page active" id="startPage">
+            <div class="emoji">🧐</div>
+            <h1>你的朋友是人类吗？</h1>
+            <p class="subtitle">回答 10 个问题，揭开真相！<br>答案只有"是"和"否"，凭直觉作答～</p>
+            <button class="btn-start" id="btnStart">开始测评</button>
+        </div>
+
+        <div class="page quiz-page" id="quizPage">
+            <div class="progress-area">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">第 1/10 题</div>
+            </div>
+            <div class="question-text" id="questionText"></div>
+            <div class="btn-group">
+                <button class="btn-answer" id="btnYes">是 😄</button>
+                <button class="btn-answer" id="btnNo">否 🤔</button>
+            </div>
+        </div>
+
+        <div class="page result-page" id="resultPage">
+            <div class="emoji" id="resultEmoji"></div>
+            <div class="conclusion" id="resultConclusion"></div>
+            <div class="score-area">
+                <div class="score-text" id="scoreText"></div>
+                <div class="score-bar-bg">
+                    <div class="score-bar-fill" id="scoreFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <button class="btn-restart" id="btnRestart">再测一次</button>
+        </div>
+    </div>
+
+    <script>
+        var questions = [
+            '你的朋友会在下雨天踩水坑吗？',
+            '你的朋友会在深夜和角落生物对谈吗？',
+            '你的朋友会在吃到美食时发出"哞～"的声音吗？',
+            '你的朋友会在闹钟响后钻到床底吗？',
+            '你的朋友会在看到可爱的小动物时掏出神奇宝贝收纳器吗？',
+            '你的朋友会在说"再玩一局就睡"后继续玩吗？',
+            '你的朋友会在收到红包时怒摔然后大喊瞧不起谁吗？',
+            '你的朋友会在减肥期间背着冰箱去旅行吗？',
+            '你的朋友会在社交场合假装手机有消息然后45度角流眼泪吗？',
+            '你的朋友会在听到伤感歌曲时突然变身冰雪姬吗？'
+        ];
+
+        var currentIndex = 0;
+        var yesCount = 0;
+        var transitioning = false;
+
+        var startPage = document.getElementById('startPage');
+        var quizPage = document.getElementById('quizPage');
+        var resultPage = document.getElementById('resultPage');
+        var progressFill = document.getElementById('progressFill');
+        var progressText = document.getElementById('progressText');
+        var questionText = document.getElementById('questionText');
+        var btnYes = document.getElementById('btnYes');
+        var btnNo = document.getElementById('btnNo');
+        var resultEmoji = document.getElementById('resultEmoji');
+        var resultConclusion = document.getElementById('resultConclusion');
+        var scoreText = document.getElementById('scoreText');
+        var scoreFill = document.getElementById('scoreFill');
+
+        function showPage(page) {
+            startPage.classList.remove('active');
+            quizPage.classList.remove('active');
+            resultPage.classList.remove('active');
+            page.classList.add('active');
+        }
+
+        function startQuiz() {
+            currentIndex = 0;
+            yesCount = 0;
+            transitioning = false;
+            btnYes.className = 'btn-answer';
+            btnNo.className = 'btn-answer';
+            showPage(quizPage);
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            questionText.textContent = questions[currentIndex];
+            progressFill.style.width = ((currentIndex) / questions.length * 100) + '%';
+            progressText.textContent = '第 ' + (currentIndex + 1) + '/' + questions.length + ' 题';
+            btnYes.className = 'btn-answer';
+            btnNo.className = 'btn-answer';
+            transitioning = false;
+        }
+
+        function answer(isYes) {
+            if (transitioning) return;
+            transitioning = true;
+
+            if (isYes) {
+                yesCount++;
+                btnYes.classList.add('selected-yes');
+            } else {
+                btnNo.classList.add('selected-no');
+            }
+
+            currentIndex++;
+
+            if (currentIndex >= questions.length) {
+                progressFill.style.width = '100%';
+                setTimeout(showResult, 600);
+            } else {
+                setTimeout(renderQuestion, 400);
+            }
+        }
+
+        function showResult() {
+            var total = questions.length;
+            var ratio = yesCount / total;
+            var emoji, conclusion, barClass;
+
+            if (ratio <= 0.3) {
+                emoji = '🤖';
+                conclusion = '很遗憾，你的朋友不是人类';
+                barClass = 'robot';
+            } else if (ratio <= 0.7) {
+                emoji = '🐒';
+                conclusion = '你的朋友可能是半兽人，请进一步观察';
+                barClass = 'half';
+            } else {
+                emoji = '🎉';
+                conclusion = '恭喜你，你的朋友是人类！';
+                barClass = 'human';
+            }
+
+            resultEmoji.textContent = emoji;
+            resultConclusion.textContent = conclusion;
+            scoreText.textContent = '回答"是"：' + yesCount + ' / ' + total;
+            scoreFill.className = 'score-bar-fill ' + barClass;
+            showPage(resultPage);
+
+            setTimeout(function () {
+                scoreFill.style.width = (ratio * 100) + '%';
+            }, 100);
+        }
+
+        document.getElementById('btnStart').addEventListener('click', startQuiz);
+        btnYes.addEventListener('click', function () { answer(true); });
+        btnNo.addEventListener('click', function () { answer(false); });
+        document.getElementById('btnRestart').addEventListener('click', startQuiz);
+
+        document.addEventListener('keydown', function (e) {
+            if (!quizPage.classList.contains('active')) return;
+            if (e.key === 'y' || e.key === 'Y') answer(true);
+            if (e.key === 'n' || e.key === 'N') answer(false);
+        });
+    </script>
+</body>
+</html>
